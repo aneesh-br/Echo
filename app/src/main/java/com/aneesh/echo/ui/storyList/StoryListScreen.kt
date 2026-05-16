@@ -9,7 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.aneesh.echo.model.Story
+import com.aneesh.echo.data.local.StoryEntity
 
 
 @Composable
@@ -21,7 +21,7 @@ fun StoryListScreen(
     StoryListContent(stories = stories, modifier = modifier)
 }
 @Composable
-fun StoryListContent(stories: List<Story>, modifier: Modifier = Modifier) {
+fun StoryListContent(stories: List<StoryEntity>, modifier: Modifier = Modifier) {
     LazyColumn(modifier = modifier.fillMaxSize()) {
         items(stories) { story ->
             Text(text = story.title)
