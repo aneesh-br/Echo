@@ -3,7 +3,6 @@ package com.aneesh.echo.ui.storyList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aneesh.echo.data.StoryRepository
-import com.aneesh.echo.data.local.StoryEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,21 +19,19 @@ class StoryListViewModel @Inject constructor(
 //        Story(3, "Why we moved KMP", "Aneesh", 501)
 //    )
 
-    private val _stories = MutableStateFlow<List<StoryEntity>>(emptyList())
-    val stories: StateFlow<List<StoryEntity>> = _stories
+    private val _stories = MutableStateFlow<UiState>(UiState.Loading)
+    val stories: StateFlow<UiState> = _stories
 
     init {
         viewModelScope.launch {
             try {
                 repository.refresh()
+                repository.fetchTopStories().collect { value ->
+                    _stories.value = UiState.Success(value)
+                }
             }
             catch(e: Exception){
-                // network failed
-            }
-        }
-        viewModelScope.launch {
-            repository.fetchTopStories().collect { value ->
-                _stories.value = value
+                _stories.value = UiState.Error(e)
             }
         }
     }
