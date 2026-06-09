@@ -24,13 +24,19 @@ class StoryListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            repository.fetchTopStories().collect { value ->
+                _stories.value = UiState.Success(value)
+            }
+        }
+    }
+
+    fun refresh() {
+        android.util.Log.d("EchoRefresh", "refresh() called")
+        viewModelScope.launch {
             try {
                 repository.refresh()
-                repository.fetchTopStories().collect { value ->
-                    _stories.value = UiState.Success(value)
-                }
             }
-            catch(e: Exception){
+            catch (e: Exception) {
                 _stories.value = UiState.Error(e)
             }
         }
