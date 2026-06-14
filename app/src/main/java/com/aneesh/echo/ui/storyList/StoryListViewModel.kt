@@ -22,6 +22,9 @@ class StoryListViewModel @Inject constructor(
     private val _stories = MutableStateFlow<UiState>(UiState.Loading)
     val stories: StateFlow<UiState> = _stories
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing = _isRefreshing
+
     init {
         viewModelScope.launch {
             repository.fetchTopStories().collect { value ->
@@ -33,11 +36,15 @@ class StoryListViewModel @Inject constructor(
     fun refresh() {
         android.util.Log.d("EchoRefresh", "refresh() called")
         viewModelScope.launch {
+            _isRefreshing.value = true
             try {
                 repository.refresh()
             }
             catch (e: Exception) {
                 _stories.value = UiState.Error(e)
+            }
+            finally {
+                _isRefreshing.value = false
             }
         }
     }
