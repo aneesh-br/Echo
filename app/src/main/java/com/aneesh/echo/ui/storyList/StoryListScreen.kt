@@ -14,12 +14,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +35,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.aneesh.echo.data.local.StoryEntity
+import kotlinx.coroutines.launch
 
 @Composable
 fun StoryListRoute(
@@ -79,6 +82,8 @@ fun StoryListContent(
                 Log.d("EchoScroll", "TopItemIndex = $index")
             }
     }
+
+    val scope = rememberCoroutineScope()
     PullToRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
@@ -118,6 +123,19 @@ fun StoryListContent(
 
             is UiState.Loading -> Text("Loading...")
             is UiState.Error -> Text("error: ${uiState.e.message}")
+        }
+
+        if(listState.firstVisibleItemIndex > 0) {
+            FloatingActionButton(
+                onClick = {
+                    scope.launch{
+                    listState.animateScrollToItem(0)
+                }
+                          },
+                modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp)
+            ) {
+                Text("↑")
+            }
         }
     }
 }
