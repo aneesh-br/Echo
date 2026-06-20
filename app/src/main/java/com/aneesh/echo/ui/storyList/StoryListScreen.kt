@@ -1,6 +1,7 @@
 package com.aneesh.echo.ui.storyList
 
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -40,7 +41,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun StoryListRoute(
     modifier: Modifier = Modifier,
-    viewModel: StoryListViewModel = hiltViewModel()
+    viewModel: StoryListViewModel = hiltViewModel(),
+    onStoryClick: (Long) -> Unit
 ) {
     LaunchedEffect(Unit) {
         viewModel.refresh()
@@ -64,7 +66,7 @@ fun StoryListRoute(
     StoryListContent(uiState, isRefreshing, {
             viewModel.refresh()
         },
-        modifier)
+        onStoryClick, modifier)
 }
 
 @Composable
@@ -72,6 +74,7 @@ fun StoryListContent(
     uiState: UiState,
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
+    onStoryClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState()
@@ -94,9 +97,11 @@ fun StoryListContent(
                 val stories = uiState.stories
                 LazyColumn(state = listState, modifier = modifier.fillMaxSize()) {
                     items(items = stories, key = { story -> story.id }) { story ->
-                        Card(Modifier
+                        Card(onClick = {onStoryClick(story.id)},
+                            Modifier
                             .fillMaxWidth()
-                            .padding(10.dp)) {
+                            .padding(10.dp)
+                        ) {
                             Row(
                                 Modifier
                                     .fillMaxWidth()
@@ -132,7 +137,9 @@ fun StoryListContent(
                     listState.animateScrollToItem(0)
                 }
                           },
-                modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp)
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp)
             ) {
                 Text("↑")
             }
@@ -149,5 +156,5 @@ fun StoryListContentPreview() {
         StoryEntity(3, "Why we moved KMP", "Aneesh", 501)
     )
 
-    StoryListContent(UiState.Success(hardCodedStories), false, { }, Modifier)
+    StoryListContent(UiState.Success(hardCodedStories), false, { }, {}, Modifier)
 }

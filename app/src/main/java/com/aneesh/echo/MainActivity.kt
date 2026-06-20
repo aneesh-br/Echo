@@ -7,11 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.aneesh.echo.ui.storyList.StoryListRoute
+import com.aneesh.echo.ui.navigation.EchoNavHost
 import com.aneesh.echo.ui.theme.EchoTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -23,7 +20,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             EchoTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    StoryListRoute(modifier = Modifier.padding(innerPadding))
+                    EchoNavHost(modifier = Modifier.padding(innerPadding))
                 }
             }
         }

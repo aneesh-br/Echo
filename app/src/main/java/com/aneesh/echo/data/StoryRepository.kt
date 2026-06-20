@@ -35,6 +35,10 @@ class StoryRepository @Inject constructor(
         return storyDao.getAllStoriesFromDb()
     }
 
+    fun fetchStory(id: Long) : Flow<StoryEntity?> {
+        return storyDao.getStoryDetails(id)
+    }
+
     fun mapStoryToStoryEntity(story: Story) : StoryEntity {
         return StoryEntity(story.id, story.title, story.author, story.score)
     }

@@ -13,4 +13,7 @@ interface StoryDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(stories: List<StoryEntity>)
+
+    @Query("SELECT * FROM stories WHERE id =:id ")
+    fun getStoryDetails(id: Long) : Flow<StoryEntity?>  // Trading off suspend for flow because fetchTopStories() is non suspend
 }
