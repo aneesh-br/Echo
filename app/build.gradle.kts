@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -42,6 +44,13 @@ android {
     }
 }
 
+composeCompiler {
+    // human-readable reports: composables + classes, tagged skippable/stable
+    reportsDestination = layout.buildDirectory.dir("compose_compiler")
+    // aggregate numbers (json/csv)
+    metricsDestination = layout.buildDirectory.dir("compose_compiler")
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -59,6 +68,7 @@ dependencies {
     implementation(libs.okhttp.core)
     implementation(libs.okhttp.logging)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.collections.immutable)
     implementation(libs.retrofit.kotlinx.serialization)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.room.runtime)

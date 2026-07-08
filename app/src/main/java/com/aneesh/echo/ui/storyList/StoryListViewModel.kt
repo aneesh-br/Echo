@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aneesh.echo.data.StoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -28,7 +30,7 @@ class StoryListViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             repository.fetchTopStories().collect { value ->
-                _stories.value = UiState.Success(value)
+                _stories.value = UiState.Success(value.toImmutableList())
             }
         }
     }

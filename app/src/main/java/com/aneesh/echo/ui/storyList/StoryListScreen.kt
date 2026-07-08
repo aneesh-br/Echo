@@ -1,7 +1,6 @@
 package com.aneesh.echo.ui.storyList
 
 import android.util.Log
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,6 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.aneesh.echo.data.local.StoryEntity
 import kotlinx.coroutines.launch
+import kotlinx.collections.immutable.persistentListOf
 
 @Composable
 fun StoryListRoute(
@@ -150,7 +150,7 @@ fun StoryListContent(
 @Preview(showBackground = true)
 @Composable
 fun StoryListContentPreview() {
-    val hardCodedStories = listOf(
+    val hardCodedStories = persistentListOf(
         StoryEntity(1, "Coroutines are not threads", "gopher", 342),
         StoryEntity(2, "Jetpack Compose Internal", "Jorge", 289),
         StoryEntity(3, "Why we moved KMP", "Aneesh", 501)
