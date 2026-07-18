@@ -5,7 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.aneesh.echo.data.StoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -27,8 +28,12 @@ class StoryListViewModel @Inject constructor(
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing = _isRefreshing
 
+    private val errorHandler = CoroutineExceptionHandler { _, throwable ->
+        _stories.value = UiState.Error(throwable)
+    }
+
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(errorHandler) {
             repository.fetchTopStories().collect { value ->
                 _stories.value = UiState.Success(value.toImmutableList())
             }
@@ -41,6 +46,9 @@ class StoryListViewModel @Inject constructor(
             _isRefreshing.value = true
             try {
                 repository.refresh()
+            }
+            catch (e: CancellationException) {
+                throw e
             }
             catch (e: Exception) {
                 _stories.value = UiState.Error(e)

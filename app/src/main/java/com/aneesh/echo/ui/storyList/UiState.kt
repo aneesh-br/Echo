@@ -6,5 +6,5 @@ import kotlinx.collections.immutable.ImmutableList
 sealed class UiState {
     data object Loading: UiState()
     data class Success(val stories: ImmutableList<StoryEntity>): UiState()
-    data class Error(val e: Exception): UiState()
+    data class Error(val e: Throwable): UiState()
 }

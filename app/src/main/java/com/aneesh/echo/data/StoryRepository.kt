@@ -4,10 +4,12 @@ import com.aneesh.echo.data.local.StoryDao
 import com.aneesh.echo.data.local.StoryEntity
 import com.aneesh.echo.model.Story
 import com.aneesh.echo.network.HnApiService
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.supervisorScope
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,12 +18,20 @@ class StoryRepository @Inject constructor(
     private val apiService: HnApiService,
     private val storyDao: StoryDao
 ){
-    private suspend fun fetchTopStoriesFromNetwork() : List<Story> = coroutineScope {
+    private suspend fun fetchTopStoriesFromNetwork() : List<Story> = supervisorScope {
         apiService.getTopStoryIds().take(30).map { id ->
             async {
-                apiService.getItem(id)
+                try {
+                    apiService.getItem(id)
+                }
+                catch (e: CancellationException) {
+                    throw e
+                }
+                catch (e: Exception) {
+                    null
+                }
             }
-        }.awaitAll() // async returns Defferred type, .await() makes it return the list
+        }.awaitAll().filterNotNull() // async returns Defferred type, .await() makes it return the list
     }
 
     suspend fun refresh(){

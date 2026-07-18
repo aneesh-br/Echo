@@ -7,6 +7,7 @@ import androidx.navigation.toRoute
 import com.aneesh.echo.data.StoryRepository
 import com.aneesh.echo.ui.navigation.DetailScreen
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -41,7 +42,11 @@ class DetailViewModel @Inject constructor(
                         _events.emit(DetailEvent.ShowSnackBar("Story Not Found"))
                     }
                 }
-            } catch (e: Exception) {
+            }
+            catch (e: CancellationException) {
+                throw e
+            }
+            catch (e: Exception) {
                  _uiState.value = DetailUiState.Error(e)
             }
         }
