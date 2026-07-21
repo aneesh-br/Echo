@@ -7,7 +7,6 @@ import com.aneesh.echo.network.HnApiService
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.supervisorScope
 import javax.inject.Inject
@@ -27,11 +26,15 @@ class StoryRepository @Inject constructor(
                 catch (e: CancellationException) {
                     throw e
                 }
-                catch (e: Exception) {
+                catch (_: Exception) {
                     null
                 }
             }
         }.awaitAll().filterNotNull() // async returns Defferred type, .await() makes it return the list
+    }
+
+    fun searchStories(query: String) : Flow<List<StoryEntity>> {
+        return storyDao.searchStories(query)
     }
 
     suspend fun refresh(){

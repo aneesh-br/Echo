@@ -11,6 +11,9 @@ interface StoryDao {
     @Query("SELECT * FROM stories") // needs "" and Capital commands
     fun getAllStoriesFromDb() : Flow<List<StoryEntity>>
 
+    @Query("SELECT * FROM stories WHERE title LIKE '%' || :query || '%'") // notice '' around %
+    fun searchStories(query: String) : Flow<List<StoryEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(stories: List<StoryEntity>)
 

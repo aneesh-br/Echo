@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -63,16 +64,23 @@ fun StoryListRoute(
     }
     val uiState by viewModel.stories.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
-    StoryListContent(uiState, isRefreshing, {
-            viewModel.refresh()
-        },
-        onStoryClick, modifier)
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    StoryListContent(
+        uiState,
+        isRefreshing,
+        searchQuery,
+        viewModel::onQueryTextChange,
+        { viewModel.refresh() },
+        onStoryClick,
+        modifier)
 }
 
 @Composable
 fun StoryListContent(
     uiState: UiState,
     isRefreshing: Boolean,
+    searchQuery: String,
+    onQueryChange: (String) -> Unit,
     onRefresh: () -> Unit,
     onStoryClick: (Long) -> Unit,
     modifier: Modifier = Modifier
@@ -92,51 +100,60 @@ fun StoryListContent(
         onRefresh = onRefresh,
         modifier = modifier.fillMaxSize()
     ) {
-        when (uiState) {
-            is UiState.Success -> {
-                val stories = uiState.stories
-                LazyColumn(state = listState, modifier = modifier.fillMaxSize()) {
-                    items(items = stories, key = { story -> story.id }) { story ->
-                        Card(onClick = {onStoryClick(story.id)},
-                            Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)
-                        ) {
-                            Row(
+        Column(Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = onQueryChange,
+                modifier = Modifier.fillMaxWidth().padding(0.dp, 5.dp),
+                label = {Text("Search Stories")},
+                singleLine = true
+                )
+            when (uiState) {
+                is UiState.Success -> {
+                    val stories = uiState.stories
+                    LazyColumn(state = listState, modifier = modifier.fillMaxSize()) {
+                        items(items = stories, key = { story -> story.id }) { story ->
+                            Card(
+                                onClick = { onStoryClick(story.id) },
                                 Modifier
                                     .fillMaxWidth()
-                                    .padding(10.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                                    .padding(10.dp)
                             ) {
-                                AsyncImage(
-                                    model = "https://api.dicebear.com/9.x/identicon/png?seed=${story.author}",
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .clip(CircleShape)
-                                )
-                                Spacer(Modifier.width(10.dp))
-                                Column(Modifier.padding(10.dp)) {
-                                    Text(text = story.title)
-                                    Text(text = story.author)
+                                Row(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    AsyncImage(
+                                        model = "https://api.dicebear.com/9.x/identicon/png?seed=${story.author}",
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(CircleShape)
+                                    )
+                                    Spacer(Modifier.width(10.dp))
+                                    Column(Modifier.padding(10.dp)) {
+                                        Text(text = story.title)
+                                        Text(text = story.author)
+                                    }
                                 }
                             }
                         }
                     }
                 }
+
+                is UiState.Loading -> Text("Loading...")
+                is UiState.Error -> Text("error: ${uiState.e.message}")
             }
-
-            is UiState.Loading -> Text("Loading...")
-            is UiState.Error -> Text("error: ${uiState.e.message}")
         }
-
-        if(listState.firstVisibleItemIndex > 0) {
+        if (listState.firstVisibleItemIndex > 0) {
             FloatingActionButton(
                 onClick = {
-                    scope.launch{
-                    listState.animateScrollToItem(0)
-                }
-                          },
+                    scope.launch {
+                        listState.animateScrollToItem(0)
+                    }
+                },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(16.dp)
@@ -156,5 +173,12 @@ fun StoryListContentPreview() {
         StoryEntity(3, "Why we moved KMP", "Aneesh", 501)
     )
 
-    StoryListContent(UiState.Success(hardCodedStories), false, { }, {}, Modifier)
+    StoryListContent(
+        UiState.Success(hardCodedStories),
+        false,
+        "",
+        {},
+        { },
+        {},
+        Modifier)
 }
