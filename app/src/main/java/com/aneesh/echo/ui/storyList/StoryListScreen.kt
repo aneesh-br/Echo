@@ -16,12 +16,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -34,6 +38,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
 import coil.compose.AsyncImage
 import com.aneesh.echo.data.local.StoryEntity
 import kotlinx.coroutines.launch
@@ -65,14 +70,31 @@ fun StoryListRoute(
     val uiState by viewModel.stories.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
-    StoryListContent(
-        uiState,
-        isRefreshing,
-        searchQuery,
-        viewModel::onQueryTextChange,
-        { viewModel.refresh() },
-        onStoryClick,
-        modifier)
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        viewModel.events.flowWithLifecycle(lifeCycleOwner.lifecycle,  Lifecycle.State.STARTED).collect {
+            when(it) {
+                is StoryListEvent.ShowSnackBar -> snackbarHostState.showSnackbar(it.message)
+            }
+        }
+    }
+
+    Scaffold(
+        modifier = modifier,
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { innerPadding ->
+        StoryListContent(
+            uiState,
+            isRefreshing,
+            searchQuery,
+            viewModel::onQueryTextChange,
+            { viewModel.refresh() },
+            onStoryClick,
+            modifier = Modifier.padding(innerPadding)
+        )
+    }
 }
 
 @Composable
@@ -111,7 +133,7 @@ fun StoryListContent(
             when (uiState) {
                 is UiState.Success -> {
                     val stories = uiState.stories
-                    LazyColumn(state = listState, modifier = modifier.fillMaxSize()) {
+                    LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
                         items(items = stories, key = { story -> story.id }) { story ->
                             Card(
                                 onClick = { onStoryClick(story.id) },

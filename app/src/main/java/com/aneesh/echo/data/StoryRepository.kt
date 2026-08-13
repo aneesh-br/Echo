@@ -33,7 +33,7 @@ class StoryRepository @Inject constructor(
         }.awaitAll().filterNotNull() // async returns Defferred type, .await() makes it return the list
     }
 
-    fun searchStories(query: String) : Flow<List<StoryEntity>> {
+    fun searchStories(query: String) : Flow<List<StoryEntity>> { // Cold flow so try catch not needed here.
         return storyDao.searchStories(query)
     }
 
