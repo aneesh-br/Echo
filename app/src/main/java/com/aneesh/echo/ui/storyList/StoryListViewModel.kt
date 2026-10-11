@@ -63,7 +63,6 @@ class StoryListViewModel @Inject constructor(
         )
 
     fun refresh() {
-        android.util.Log.d("EchoRefresh", "refresh() called")
         viewModelScope.launch {
             _isRefreshing.value = true
             try {

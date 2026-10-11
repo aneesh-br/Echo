@@ -9,3 +9,4 @@
 .cxx
 *.keystore
 !debug.keystore
+.kotlin
