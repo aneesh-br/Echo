@@ -1,14 +1,10 @@
-package com.aneesh.echo.ui.storylist
+package com.aneesh.echo.ui.storyList
 
 import app.cash.turbine.test
 import com.aneesh.echo.data.StoryRepository
 import com.aneesh.echo.data.local.StoryEntity
 import com.aneesh.echo.fake.FakeHnApiService
 import com.aneesh.echo.fake.FakeStoryDao
-import com.aneesh.echo.ui.storyList.StoryListEvent
-import com.aneesh.echo.ui.storyList.StoryListViewModel
-import com.aneesh.echo.ui.storyList.UiState
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
