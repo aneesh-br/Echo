@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.room)
 }
 
 android {
@@ -49,6 +50,10 @@ composeCompiler {
     reportsDestination = layout.buildDirectory.dir("compose_compiler")
     // aggregate numbers (json/csv)
     metricsDestination = layout.buildDirectory.dir("compose_compiler")
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 dependencies {
