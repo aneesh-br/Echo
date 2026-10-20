@@ -190,9 +190,9 @@ fun StoryListContent(
 @Composable
 fun StoryListContentPreview() {
     val hardCodedStories = persistentListOf(
-        StoryEntity(1, "Coroutines are not threads", "gopher", 342),
-        StoryEntity(2, "Jetpack Compose Internal", "Jorge", 289),
-        StoryEntity(3, "Why we moved KMP", "Aneesh", 501)
+        StoryEntity(1, "Coroutines are not threads", "gopher", 342, 0),
+        StoryEntity(2, "Jetpack Compose Internal", "Jorge", 289, 12),
+        StoryEntity(3, "Why we moved KMP", "Aneesh", 501, 4)
     )
 
     StoryListContent(

@@ -9,5 +9,7 @@ data class Story(
     val title: String,
     @SerialName("by")
     val author: String,
-    val score: Int
+    val score: Int,
+    @SerialName("descendants")
+    val commentCount: Int = 0
 )

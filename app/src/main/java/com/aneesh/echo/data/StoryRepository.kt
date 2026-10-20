@@ -53,10 +53,10 @@ class StoryRepository @Inject constructor(
     }
 
     fun mapStoryToStoryEntity(story: Story) : StoryEntity {
-        return StoryEntity(story.id, story.title, story.author, story.score)
+        return StoryEntity(story.id, story.title, story.author, story.score, story.commentCount)
     }
 
     fun mapStoryEntityToStory(storyEntity: StoryEntity) : Story {
-        return Story(storyEntity.id, storyEntity.title, storyEntity.author, storyEntity.score)
+        return Story(storyEntity.id, storyEntity.title, storyEntity.author, storyEntity.score, storyEntity.commentCount)
     }
 }

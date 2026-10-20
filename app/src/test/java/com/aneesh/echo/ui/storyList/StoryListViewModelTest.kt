@@ -36,8 +36,8 @@ class StoryListViewModelTest {
     fun stories_emitsLoadingThenStoriesFromDB() = runTest {
         //Arrange
         val entities = listOf(
-            StoryEntity(1, "Kotlin tips", "Aneesh", 100),
-            StoryEntity(2, "Compose Deep", "jorge", 200 ),
+            StoryEntity(1, "Kotlin tips", "Aneesh", 100, 11),
+            StoryEntity(2, "Compose Deep", "jorge", 200, 9),
         )
 
         fakeStoryDao.insertAll(entities)
@@ -54,8 +54,8 @@ class StoryListViewModelTest {
     fun search_waits300msThenShowsOnlyMatchingStories() = runTest {
         //Arrange
         val entities = listOf(
-            StoryEntity(1, "Kotlin tips", "Aneesh", 100),
-            StoryEntity(2, "Compose Deep", "jorge", 200 ),
+            StoryEntity(1, "Kotlin tips", "Aneesh", 100, 11),
+            StoryEntity(2, "Compose Deep", "jorge", 200, 9),
         )
         fakeStoryDao.insertAll(entities)
 

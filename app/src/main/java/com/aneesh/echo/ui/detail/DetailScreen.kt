@@ -114,7 +114,7 @@ fun StoryDetailsContent(
 fun StoryDetailPreview() {
     StoryDetailsContent(
         Success(
-            StoryEntity(123L, "title", "author name", 12)),
+            StoryEntity(123L, "title", "author name", 12, 10)),
             Modifier
         )
 }

@@ -19,8 +19,8 @@ class StoryRepositoryTest {
     fun refresh_savesFetchedStoriesToDb() = runTest {
         //Arrange
         fakeHnApiService.stories = listOf(
-            Story(1, "Kotlin tips",  "aneesh", 100),
-            Story(2, "Compose deep", "jorge",  200)
+            Story(1, "Kotlin tips",  "aneesh", 100, 11),
+            Story(2, "Compose deep", "jorge",  200, 9)
         )
 
         //Act
@@ -28,8 +28,8 @@ class StoryRepositoryTest {
 
         //Assert
         val expected = listOf(
-            StoryEntity(1, "Kotlin tips",  "aneesh", 100),
-            StoryEntity(2, "Compose deep", "jorge",  200)
+            StoryEntity(1, "Kotlin tips",  "aneesh", 100, 11),
+            StoryEntity(2, "Compose deep", "jorge",  200, 9)
         )
 
         repository.fetchTopStories().test {
@@ -41,9 +41,9 @@ class StoryRepositoryTest {
     fun refresh_oneItemFails_otherStoriesStillSaved() = runTest {
         //Arrange
         fakeHnApiService.stories = listOf(
-            Story(1, "Kotlin tips",  "aneesh", 100),
-            Story(2, "Broken story", "bob",     50),
-            Story(3, "Compose deep", "jorge",  200)
+            Story(1, "Kotlin tips",  "aneesh", 100, 11),
+            Story(2, "Broken story", "bob",     50, 5),
+            Story(3, "Compose deep", "jorge",  200, 9)
         )
         fakeHnApiService.failingIds = setOf(2L)
 
@@ -52,8 +52,8 @@ class StoryRepositoryTest {
 
         //Assert
         val expected = listOf(
-            StoryEntity(1, "Kotlin tips",  "aneesh", 100),
-            StoryEntity(3, "Compose deep", "jorge",  200)
+            StoryEntity(1, "Kotlin tips",  "aneesh", 100, 11),
+            StoryEntity(3, "Compose deep", "jorge",  200, 9)
         )
         repository.fetchTopStories().test {
             assertEquals(expected, awaitItem())
