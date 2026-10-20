@@ -3,7 +3,7 @@ package com.aneesh.echo.ui.storyList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aneesh.echo.data.StoryRepository
-import com.aneesh.echo.data.local.StoryEntity
+import com.aneesh.echo.data.local.StoryWithBookmark
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
@@ -49,8 +49,8 @@ class StoryListViewModel @Inject constructor(
         .debounce(300.milliseconds)
         .distinctUntilChanged()
         .flatMapLatest { query -> // alternate: flatMapLatest(repository::searchStories)
-            repository.searchStories(query)
-                .map<List<StoryEntity>, UiState>{ // this is Flow.map not List.map
+            repository.searchStoriesWithBookmarks(query)
+                .map<List<StoryWithBookmark>, UiState>{ // this is Flow.map not List.map
                     UiState.Success(it.toImmutableList())
                 }
                 .catch { e ->

@@ -40,7 +40,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import coil.compose.AsyncImage
+import com.aneesh.echo.data.local.BookmarkEntity
 import com.aneesh.echo.data.local.StoryEntity
+import com.aneesh.echo.data.local.StoryWithBookmark
 import kotlinx.coroutines.launch
 import kotlinx.collections.immutable.persistentListOf
 
@@ -134,9 +136,9 @@ fun StoryListContent(
                 is UiState.Success -> {
                     val stories = uiState.stories
                     LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
-                        items(items = stories, key = { story -> story.id }) { story ->
+                        items(items = stories, key = { item -> item.story.id }) { item ->
                             Card(
-                                onClick = { onStoryClick(story.id) },
+                                onClick = { onStoryClick(item.story.id) },
                                 Modifier
                                     .fillMaxWidth()
                                     .padding(10.dp)
@@ -148,7 +150,7 @@ fun StoryListContent(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     AsyncImage(
-                                        model = "https://api.dicebear.com/9.x/identicon/png?seed=${story.author}",
+                                        model = "https://api.dicebear.com/9.x/identicon/png?seed=${item.story.author}",
                                         contentDescription = null,
                                         modifier = Modifier
                                             .size(40.dp)
@@ -156,8 +158,10 @@ fun StoryListContent(
                                     )
                                     Spacer(Modifier.width(10.dp))
                                     Column(Modifier.padding(10.dp)) {
-                                        Text(text = story.title)
-                                        Text(text = story.author)
+                                        Text(text = item.story.title)
+                                        Text(text = item.story.author)
+                                        Text(text = "${item.story.commentCount} Comments")
+                                        if (item.bookmark != null) Text(text = "Saved")
                                     }
                                 }
                             }
@@ -190,9 +194,16 @@ fun StoryListContent(
 @Composable
 fun StoryListContentPreview() {
     val hardCodedStories = persistentListOf(
-        StoryEntity(1, "Coroutines are not threads", "gopher", 342, 0),
-        StoryEntity(2, "Jetpack Compose Internal", "Jorge", 289, 12),
-        StoryEntity(3, "Why we moved KMP", "Aneesh", 501, 4)
+        StoryWithBookmark(
+            StoryEntity(1, "Coroutines are not threads", "gopher", 342, 0),
+            BookmarkEntity(1, 0)
+        ),
+        StoryWithBookmark(StoryEntity(2, "Jetpack Compose Internal", "Jorge", 289, 12),
+            null
+        ),
+        StoryWithBookmark(StoryEntity(3, "Why we moved KMP", "Aneesh", 501, 4),
+            BookmarkEntity(3, 0)
+        )
     )
 
     StoryListContent(

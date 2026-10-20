@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
@@ -14,6 +15,10 @@ interface StoryDao {
 
     @Query("SELECT * FROM stories WHERE title LIKE '%' || :query || '%'") // notice '' around %
     fun searchStories(query: String) : Flow<List<StoryEntity>>
+
+    @Transaction
+    @Query("SELECT * FROM stories WHERE title LIKE '%' || :query || '%'") // notice '' around %
+    fun searchStoriesWithBookmarks(query: String) : Flow<List<StoryWithBookmark>>
 
     @Upsert
     suspend fun insertAll(stories: List<StoryEntity>) // @Insert(onConflict = OnConflictStrategy.REPLACE) would delete the story row before reinserting on every refresh, and CASCADE would take the bookmark with it.

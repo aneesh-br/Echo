@@ -2,6 +2,7 @@ package com.aneesh.echo.data
 
 import com.aneesh.echo.data.local.StoryDao
 import com.aneesh.echo.data.local.StoryEntity
+import com.aneesh.echo.data.local.StoryWithBookmark
 import com.aneesh.echo.model.Story
 import com.aneesh.echo.network.HnApiService
 import kotlinx.coroutines.CancellationException
@@ -35,6 +36,10 @@ class StoryRepository @Inject constructor(
 
     fun searchStories(query: String) : Flow<List<StoryEntity>> { // Cold flow so try catch not needed here.
         return storyDao.searchStories(query)
+    }
+
+    fun searchStoriesWithBookmarks(query: String) : Flow<List<StoryWithBookmark>> {
+        return storyDao.searchStoriesWithBookmarks(query)
     }
 
     suspend fun refresh(){

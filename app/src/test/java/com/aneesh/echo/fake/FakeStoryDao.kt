@@ -2,6 +2,7 @@ package com.aneesh.echo.fake
 
 import com.aneesh.echo.data.local.StoryDao
 import com.aneesh.echo.data.local.StoryEntity
+import com.aneesh.echo.data.local.StoryWithBookmark
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
@@ -34,5 +35,13 @@ class FakeStoryDao : StoryDao{
         table.emit(table.value.filterNot { currStory ->
             incomingIds.contains(currStory.id)
         } + stories)
+    }
+
+    override fun searchStoriesWithBookmarks(query: String): Flow<List<StoryWithBookmark>> {
+        return searchStories(query).map { storyList ->
+            storyList.map { storyEntity ->
+                StoryWithBookmark(storyEntity, bookmark = null)
+            }
+        }
     }
 }

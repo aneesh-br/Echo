@@ -3,6 +3,7 @@ package com.aneesh.echo.ui.storyList
 import app.cash.turbine.test
 import com.aneesh.echo.data.StoryRepository
 import com.aneesh.echo.data.local.StoryEntity
+import com.aneesh.echo.data.local.StoryWithBookmark
 import com.aneesh.echo.fake.FakeHnApiService
 import com.aneesh.echo.fake.FakeStoryDao
 import kotlinx.collections.immutable.toImmutableList
@@ -45,7 +46,7 @@ class StoryListViewModelTest {
         //Act + Assert
         viewModel.stories.test {
             assertEquals(UiState.Loading, awaitItem())
-            assertEquals(UiState.Success(entities.toImmutableList()), awaitItem())
+            assertEquals(UiState.Success(entities.map { StoryWithBookmark(it, bookmark = null) }.toImmutableList()), awaitItem())
         }
     }
 
@@ -69,7 +70,7 @@ class StoryListViewModelTest {
             expectNoEvents()
 
             //Assert
-            assertEquals(UiState.Success(listOf(entities[0]).toImmutableList()), awaitItem())
+            assertEquals(UiState.Success(listOf(StoryWithBookmark(entities[0], null)).toImmutableList()), awaitItem())
         }
     }
 
