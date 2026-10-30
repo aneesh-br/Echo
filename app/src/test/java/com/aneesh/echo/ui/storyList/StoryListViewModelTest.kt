@@ -1,17 +1,16 @@
 package com.aneesh.echo.ui.storyList
 
 import app.cash.turbine.test
-import com.aneesh.echo.data.StoryRepository
+import com.aneesh.echo.fake.FakeStoryRepository
 import com.aneesh.echo.data.local.StoryEntity
 import com.aneesh.echo.data.local.StoryWithBookmark
-import com.aneesh.echo.fake.FakeHnApiService
-import com.aneesh.echo.fake.FakeStoryDao
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -21,9 +20,8 @@ import org.junit.Test
 
 class StoryListViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
-    private val fakeStoryDao = FakeStoryDao()
-    private val fakeHnApiService = FakeHnApiService()
-    private val repository = StoryRepository(fakeHnApiService, fakeStoryDao)
+
+    private val repository = FakeStoryRepository()
 
     private lateinit var viewModel: StoryListViewModel
 
@@ -34,50 +32,58 @@ class StoryListViewModelTest {
     }
 
     @Test
-    fun stories_emitsLoadingThenStoriesFromDB() = runTest {
+    fun stories_emitsLoadingThenStoriesFromRepository() = runTest {
         //Arrange
         val entities = listOf(
-            StoryEntity(1, "Kotlin tips", "Aneesh", 100, 11),
-            StoryEntity(2, "Compose Deep", "jorge", 200, 9),
+            StoryWithBookmark(StoryEntity(1, "Kotlin tips", "Aneesh", 100, 11), null),
+            StoryWithBookmark(StoryEntity(2, "Compose Deep", "jorge", 200, 9), null),
         )
 
-        fakeStoryDao.insertAll(entities)
+        repository.stories.emit(entities)
 
         //Act + Assert
         viewModel.stories.test {
             assertEquals(UiState.Loading, awaitItem())
-            assertEquals(UiState.Success(entities.map { StoryWithBookmark(it, bookmark = null) }.toImmutableList()), awaitItem())
+            assertEquals(UiState.Success(entities.toImmutableList()), awaitItem())
         }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun search_waits300msThenShowsOnlyMatchingStories() = runTest {
+    fun search_waits300msOnQueryUpdate() = runTest {
         //Arrange
         val entities = listOf(
-            StoryEntity(1, "Kotlin tips", "Aneesh", 100, 11),
-            StoryEntity(2, "Compose Deep", "jorge", 200, 9),
+            StoryWithBookmark(StoryEntity(1, "Kotlin tips", "Aneesh", 100, 11), null),
+            StoryWithBookmark(StoryEntity(2, "Compose Deep", "jorge", 200, 9), null),
         )
-        fakeStoryDao.insertAll(entities)
+        repository.stories.emit(entities)
 
         viewModel.stories.test {
             awaitItem() //Loading
             awaitItem() //Success
 
             // Act
-            viewModel.onQueryTextChange("kotlin")
+            val before = repository.queries.size
+            val query = "kotlin"
+            viewModel.onQueryTextChange(query)
             advanceTimeBy(299)
+            assertEquals(before, repository.queries.size)
             expectNoEvents()
 
             //Assert
-            assertEquals(UiState.Success(listOf(StoryWithBookmark(entities[0], null)).toImmutableList()), awaitItem())
+            advanceTimeBy(1)
+            runCurrent()
+            assertEquals(before + 1, repository.queries.size)
+            assertEquals(query, repository.queries[before])
+
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
     fun refresh_networkFails_sendsSnackbarEvent() = runTest {
         //Arrange
-        fakeHnApiService.failAll = true
+        repository.failRefresh = true
 
         viewModel.events.test {
             //Act

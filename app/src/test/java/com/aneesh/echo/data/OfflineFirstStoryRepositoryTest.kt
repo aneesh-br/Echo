@@ -9,11 +9,11 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class StoryRepositoryTest {
+class OfflineFirstStoryRepositoryTest {
 
     private val fakeStoryDao = FakeStoryDao()
     private val fakeHnApiService = FakeHnApiService()
-    private val repository = StoryRepository( fakeHnApiService, fakeStoryDao)
+    private val repository = OfflineFirstStoryRepository( fakeHnApiService, fakeStoryDao)
 
     @Test
     fun refresh_savesFetchedStoriesToDb() = runTest {
@@ -32,8 +32,8 @@ class StoryRepositoryTest {
             StoryEntity(2, "Compose deep", "jorge",  200, 9)
         )
 
-        repository.fetchTopStories().test {
-            assertEquals(expected, awaitItem())
+        repository.searchStoriesWithBookmarks("").test {
+            assertEquals(expected, awaitItem().map { it.story })
         }
     }
 
@@ -55,8 +55,8 @@ class StoryRepositoryTest {
             StoryEntity(1, "Kotlin tips",  "aneesh", 100, 11),
             StoryEntity(3, "Compose deep", "jorge",  200, 9)
         )
-        repository.fetchTopStories().test {
-            assertEquals(expected, awaitItem())
+        repository.searchStoriesWithBookmarks("").test {
+            assertEquals(expected, awaitItem().map { it.story })
         }
     }
 }
