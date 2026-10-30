@@ -26,13 +26,11 @@ object DatabaseModule {
     }
 
     @Provides
-    @Singleton
     fun providesStoryDao(echoDatabase: EchoDatabase): StoryDao {
         return echoDatabase.storyDao()
     }
 
     @Provides
-    @Singleton
     fun providesBookmarkDao(echoDatabase: EchoDatabase): BookmarkDao {
         return echoDatabase.bookmarkDao()
     }
